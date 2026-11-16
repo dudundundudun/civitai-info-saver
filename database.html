@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Saved Civitai Models Database</title>
+  <style>
+    :root {
+      --bg: #101113;
+      --card: #1a1b1e;
+      --border: #2c2e33;
+      --text: #e9ecef;
+      --muted: #909296;
+      --accent: #339af0;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 24px 32px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    h1 { margin: 0; font-size: 22px; color: #74c0fc; }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+      background: var(--card);
+      padding: 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+    input[type="search"], select {
+      background: #141517;
+      border: 1px solid #373a40;
+      color: #fff;
+      padding: 9px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+    input[type="search"] { flex: 1; min-width: 280px; }
+    .btn {
+      background: #25262b;
+      color: #e9ecef;
+      border: 1px solid #373a40;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn:hover { border-color: var(--accent); color: #fff; }
+    .btn-primary { background: #1971c2; border-color: #339af0; color: #fff; }
+    .btn-danger-mini {
+      background: transparent;
+      border: 1px solid #373a40;
+      color: #ff8787;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    .btn-danger-mini:hover {
+      background: rgba(255, 107, 107, 0.15);
+      border-color: #ff8787;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 16px;
+    }
+    .model-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .card-top {
+      display: flex;
+      gap: 14px;
+      padding: 14px;
+    }
+    .thumb {
+      width: 96px;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 6px;
+      background: #000;
+      flex-shrink: 0;
+    }
+    .card-info { flex: 1; min-width: 0; }
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      margin: 0 0 6px 0;
+      line-height: 1.3;
+    }
+    .badges { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
+    .badge {
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(51, 154, 240, 0.16);
+      color: #74c0fc;
+      font-weight: 600;
+    }
+    .kv { font-size: 12px; color: var(--muted); margin-bottom: 4px; word-break: break-all; }
+    .kv code {
+      color: #63e6be;
+      background: #101113;
+      padding: 1px 5px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .card-footer {
+      margin-top: auto;
+      padding: 10px 14px;
+      background: #141517;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+    }
+    .card-footer a { color: var(--accent); text-decoration: none; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <h1>🗂️ Saved Civitai Models Database</h1>
+      <div id="stats-line" style="color:#909296;font-size:13px;margin-top:4px;">Loading saved models...</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-primary" id="export-html-btn">📄 Export Searchable HTML Catalog</button>
+      <button class="btn" id="export-csv-btn">📊 Export CSV (Excel)</button>
+      <button class="btn" id="export-json-btn">📦 Export JSON Backup</button>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <input type="search" id="search-input" placeholder="Search by title, .safetensors filename, trigger words, base model, hash, tags, or description..." />
+    <select id="filter-base">
+      <option value="">All Base Models</option>
+    </select>
+    <select id="filter-type">
+      <option value="">All Model Types</option>
+    </select>
+  </div>
+
+  <div id="models-grid" class="grid"></div>
+  <script src="database.js"></script>
+</body>
+</html>

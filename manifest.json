@@ -1,0 +1,73 @@
+{
+  "manifest_version": 3,
+  "name": "Civitai Model Info & Media Saver",
+  "version": "1.6.0",
+  "description": "Saves Civitai model info & media into Documents/civitred/[LoRA Title]/ with duplicate folder detection and an offline Civitai-replica HTML page.",
+  "permissions": [
+    "downloads",
+    "storage",
+    "activeTab",
+    "unlimitedStorage"
+  ],
+  "host_permissions": [
+    "https://civitai.com/*",
+    "https://*.civitai.com/*",
+    "https://civitai.red/*",
+    "https://*.civitai.red/*",
+    "https://civitai.green/*",
+    "https://*.civitai.green/*",
+    "https://*.cloudflarestorage.com/*",
+    "https://*.r2.cloudflarestorage.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Civitai Info & Media Saver",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://civitai.com/*",
+        "https://*.civitai.com/*",
+        "https://civitai.red/*",
+        "https://*.civitai.red/*",
+        "https://civitai.green/*",
+        "https://*.civitai.green/*"
+      ],
+      "css": [
+        "content.css"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "icons/*"
+      ],
+      "matches": [
+        "https://civitai.com/*",
+        "https://*.civitai.com/*",
+        "https://civitai.red/*",
+        "https://*.civitai.red/*",
+        "https://civitai.green/*",
+        "https://*.civitai.green/*"
+      ]
+    }
+  ]
+}

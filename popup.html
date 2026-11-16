@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Civitai Info Saver</title>
+  <style>
+    body {
+      width: 340px;
+      margin: 0;
+      padding: 14px;
+      background: #141517;
+      color: #e9ecef;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 13px;
+    }
+    h2 {
+      margin: 0 0 10px 0;
+      font-size: 15px;
+      color: #74c0fc;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .card {
+      background: #1a1b1e;
+      border: 1px solid #2c2e33;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-top: 6px;
+    }
+    label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    input[type="text"], select {
+      width: 100%;
+      box-sizing: border-box;
+      background: #101113;
+      border: 1px solid #373a40;
+      color: #fff;
+      padding: 6px 8px;
+      border-radius: 5px;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+    .btn {
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: 6px;
+      border: 1px solid #339af0;
+      background: #1971c2;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 6px;
+    }
+    .btn-green {
+      background: #0ca678;
+      border-color: #20c997;
+      margin-bottom: 8px;
+    }
+    .btn:hover { opacity: 0.92; }
+    .muted { color: #909296; font-size: 11px; margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <h2>
+    <span>⚡ Civitai Info Saver v1.6</span>
+    <span id="db-count" style="font-size:11px;color:#38d9a9;">0 saved</span>
+  </h2>
+
+  <button class="btn btn-green" id="save-current-tab">💾 Save Current Civitai Page Now</button>
+  <div id="popup-status" class="muted" style="margin-bottom:8px;color:#63e6be;display:none;"></div>
+
+  <div class="card">
+    <strong>Форматы сохранения</strong>
+    <div class="grid">
+      <label><input type="checkbox" id="saveHtml" /> .HTML Civitai UI</label>
+      <label><input type="checkbox" id="saveMd" /> .MD Markdown</label>
+      <label><input type="checkbox" id="saveTxt" /> .TXT Инфо</label>
+      <label><input type="checkbox" id="saveJson" /> .JSON + .info</label>
+      <label><input type="checkbox" id="saveMedia" /> Все картинки</label>
+      <label><input type="checkbox" id="includeVideos" /> + Видео (.mp4)</label>
+      <label><input type="checkbox" id="skipExistingMedia" /> Пропуск дублей</label>
+      <label><input type="checkbox" id="saveWebuiPreview" /> .preview для WebUI</label>
+    </div>
+  </div>
+
+  <div class="card">
+    <strong>Папка сохранения (по умолчанию: civitred)</strong>
+    <div style="margin-top:6px;">
+      <span class="muted">Режим сохранения:</span>
+      <select id="saveMode">
+        <option value="direct_documents">Напрямую в Documents / civitred / [Название Лоры]</option>
+        <option value="downloads_subfolder">В Загрузки / civitred / [Название Лоры]</option>
+      </select>
+    </div>
+    <div style="margin-top:6px;">
+      <span class="muted">Имя общей папки:</span>
+      <input type="text" id="rootFolder" placeholder="civitred" />
+    </div>
+    <div style="margin-top:8px;">
+      <span class="muted">Имя папки для каждой Лоры:</span>
+      <select id="folderPreset">
+        <option value="lora_title_only">Только название Лоры: civitred / [Название Лоры]</option>
+        <option value="lora_title_version">Название + Версия: civitred / [Название (Версия)]</option>
+        <option value="base_and_lora_title">[BaseModel] / [Название Лоры]</option>
+        <option value="filename_only">По имени файла: [Filename]</option>
+      </select>
+    </div>
+  </div>
+
+  <button class="btn" id="open-db">🔍 Открыть базу сохранённых моделей</button>
+  <script src="popup.js"></script>
+</body>
+</html>
