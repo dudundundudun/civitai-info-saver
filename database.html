@@ -2,134 +2,151 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Saved Civitai Models Database</title>
+  <link rel="stylesheet" href="src/ui/tokens.css" />
   <style>
-    :root {
-      --bg: #101113;
-      --card: #1a1b1e;
-      --border: #2c2e33;
-      --text: #e9ecef;
-      --muted: #909296;
-      --accent: #339af0;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      padding: 24px 32px;
-      background: var(--bg);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    }
+    body { padding: 22px 28px; }
     .header {
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
       align-items: center;
       gap: 14px;
-      margin-bottom: 20px;
-      padding-bottom: 16px;
+      margin-bottom: 16px;
+      padding-bottom: 14px;
       border-bottom: 1px solid var(--border);
     }
-    h1 { margin: 0; font-size: 22px; color: #74c0fc; }
-    .toolbar {
+    h1 { margin: 0; font-size: 22px; color: var(--accent-bright); }
+    .header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .stats-strip {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 20px;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+    .stat-pill {
       background: var(--card);
-      padding: 14px;
-      border-radius: 10px;
       border: 1px solid var(--border);
-    }
-    input[type="search"], select {
-      background: #141517;
-      border: 1px solid #373a40;
-      color: #fff;
-      padding: 9px 12px;
-      border-radius: 6px;
-      font-size: 13px;
-    }
-    input[type="search"] { flex: 1; min-width: 280px; }
-    .btn {
-      background: #25262b;
-      color: #e9ecef;
-      border: 1px solid #373a40;
-      padding: 8px 14px;
-      border-radius: 6px;
-      font-size: 12.5px;
+      color: var(--text);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11.5px;
       font-weight: 600;
       cursor: pointer;
     }
-    .btn:hover { border-color: var(--accent); color: #fff; }
-    .btn-primary { background: #1971c2; border-color: #339af0; color: #fff; }
-    .btn-danger-mini {
-      background: transparent;
-      border: 1px solid #373a40;
-      color: #ff8787;
-      padding: 3px 8px;
-      border-radius: 4px;
-      font-size: 11px;
+    .stat-pill.active, .stat-pill:hover {
+      border-color: var(--accent);
+      color: #fff;
+      background: rgba(51, 154, 240, 0.18);
+    }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+      background: var(--card);
+      padding: 12px 14px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+    }
+    .toolbar input[type="search"] { flex: 1; min-width: 240px; }
+    .toolbar select { width: auto; min-width: 150px; }
+    .toggle-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      padding: 6px 10px;
+      font-size: 12px;
       cursor: pointer;
+      user-select: none;
     }
-    .btn-danger-mini:hover {
-      background: rgba(255, 107, 107, 0.15);
-      border-color: #ff8787;
-    }
+    .toggle-pill input { accent-color: var(--accent); margin: 0; }
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(365px, 1fr));
       gap: 16px;
     }
     .model-card {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 10px;
+      border-radius: var(--radius-lg);
       overflow: hidden;
       display: flex;
       flex-direction: column;
+      content-visibility: auto;
+      contain-intrinsic-size: 230px;
     }
-    .card-top {
-      display: flex;
-      gap: 14px;
-      padding: 14px;
-    }
+    .card-top { display: flex; gap: 14px; padding: 14px; }
     .thumb {
       width: 96px;
-      height: 120px;
+      height: 124px;
       object-fit: cover;
-      border-radius: 6px;
-      background: #000;
+      border-radius: var(--radius-sm);
+      background: #0c0d0f;
       flex-shrink: 0;
     }
-    .card-info { flex: 1; min-width: 0; }
-    .card-title {
-      font-size: 15px;
-      font-weight: 700;
-      color: #fff;
-      margin: 0 0 6px 0;
-      line-height: 1.3;
-    }
-    .badges { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
-    .badge {
+    .thumb-placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #5c5f66;
       font-size: 11px;
-      padding: 2px 7px;
-      border-radius: 4px;
-      background: rgba(51, 154, 240, 0.16);
-      color: #74c0fc;
-      font-weight: 600;
+      text-align: center;
+      border: 1px solid var(--border);
     }
-    .kv { font-size: 12px; color: var(--muted); margin-bottom: 4px; word-break: break-all; }
-    .kv code {
-      color: #63e6be;
-      background: #101113;
-      padding: 1px 5px;
-      border-radius: 4px;
+    .card-info { flex: 1; min-width: 0; }
+    .card-title-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .card-title { font-size: 15px; font-weight: 700; color: #fff; margin: 0; line-height: 1.3; }
+    .fav-btn {
+      background: transparent;
+      border: none;
+      font-size: 16px;
       cursor: pointer;
+      padding: 0 2px;
+      color: var(--muted);
+      line-height: 1;
+    }
+    .fav-btn.active { color: var(--warn); }
+    .badges { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
+    .kv { font-size: 12px; color: var(--muted); margin-bottom: 5px; }
+    .copy-chip {
+      background: var(--bg);
+      color: var(--success-bright);
+      border: 1px solid var(--border);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 11.5px;
+      cursor: pointer;
+      text-align: left;
+      overflow-wrap: anywhere;
+      max-width: 100%;
+    }
+    .copy-chip:hover { border-color: var(--accent); color: #fff; }
+    .note-preview {
+      margin-top: 6px;
+      padding: 5px 8px;
+      background: rgba(250, 176, 5, 0.08);
+      border-left: 2px solid var(--warn);
+      font-size: 11.5px;
+      color: #ffe066;
+      border-radius: 0 4px 4px 0;
     }
     .card-footer {
       margin-top: auto;
-      padding: 10px 14px;
-      background: #141517;
+      padding: 9px 14px;
+      background: var(--surface);
       border-top: 1px solid var(--border);
       display: flex;
       justify-content: space-between;
@@ -137,33 +154,96 @@
       gap: 8px;
       font-size: 12px;
     }
-    .card-footer a { color: var(--accent); text-decoration: none; font-weight: 600; }
+    .footer-path {
+      color: var(--muted);
+      max-width: 175px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .footer-actions { display: flex; align-items: center; gap: 6px; }
+    .dialog-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+    }
+    .dialog-head h2 { margin: 0; font-size: 16px; color: var(--accent-bright); }
+    .dialog-body { padding: 16px 18px; overflow-y: auto; max-height: calc(86vh - 64px); }
+    .kv-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; }
+    .kv-table th, .kv-table td { border: 1px solid var(--border); padding: 7px 10px; text-align: left; vertical-align: top; }
+    .kv-table th { width: 150px; background: var(--card-hover); color: var(--muted); font-weight: 600; }
   </style>
 </head>
 <body>
-  <div class="header">
+  <header class="header">
     <div>
       <h1>🗂️ Saved Civitai Models Database</h1>
-      <div id="stats-line" style="color:#909296;font-size:13px;margin-top:4px;">Loading saved models...</div>
+      <div id="stats-line" class="muted" style="margin-top:4px;font-size:13px;">Loading saved models...</div>
     </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <button class="btn btn-primary" id="export-html-btn">📄 Export Searchable HTML Catalog</button>
-      <button class="btn" id="export-csv-btn">📊 Export CSV (Excel)</button>
-      <button class="btn" id="export-json-btn">📦 Export JSON Backup</button>
+    <div class="header-actions">
+      <button type="button" class="btn" id="scan-folder-btn">🔄 Scan Local Folder</button>
+      <button type="button" class="btn" id="import-json-btn">📥 Import JSON</button>
+      <input type="file" id="import-file-input" accept=".json,application/json" style="display:none;" />
+      <button type="button" class="btn btn-primary" id="export-html-btn">📄 Export HTML</button>
+      <button type="button" class="btn" id="export-csv-btn">📊 Export CSV</button>
+      <button type="button" class="btn" id="export-json-btn">📦 Export JSON</button>
     </div>
-  </div>
+  </header>
+
+  <div id="base-stats-strip" class="stats-strip" aria-label="Base model breakdown"></div>
 
   <div class="toolbar">
-    <input type="search" id="search-input" placeholder="Search by title, .safetensors filename, trigger words, base model, hash, tags, or description..." />
-    <select id="filter-base">
+    <input type="search" id="search-input" aria-label="Search saved models" placeholder="Search by title, .safetensors filename, trigger words, base model, hash, tags, or notes..." />
+    <select id="sort-select" aria-label="Sort models">
+      <option value="newest">Sort: Newest Saved</option>
+      <option value="title">Sort: Title A–Z</option>
+      <option value="media">Sort: Most Media</option>
+      <option value="published">Sort: Published Date</option>
+    </select>
+    <select id="filter-base" aria-label="Filter by base model">
       <option value="">All Base Models</option>
     </select>
-    <select id="filter-type">
+    <select id="filter-type" aria-label="Filter by model type">
       <option value="">All Model Types</option>
     </select>
+    <label class="toggle-pill" for="filter-fav"><input type="checkbox" id="filter-fav" /> ★ Favorites</label>
+    <label class="toggle-pill" for="filter-video"><input type="checkbox" id="filter-video" /> 🎬 With Videos</label>
   </div>
 
-  <div id="models-grid" class="grid"></div>
-  <script src="database.js"></script>
+  <main>
+    <div id="models-grid" class="grid"></div>
+  </main>
+
+  <dialog id="detail-dialog" class="modal-dialog" aria-labelledby="detail-dialog-title">
+    <div class="dialog-head">
+      <h2 id="detail-dialog-title">Model Details</h2>
+      <button type="button" class="btn" id="detail-close-btn" aria-label="Close details">✕ Close</button>
+    </div>
+    <div class="dialog-body" id="detail-dialog-body"></div>
+  </dialog>
+
+  <dialog id="import-dialog" class="modal-dialog" style="max-width:440px;" aria-labelledby="import-dialog-title">
+    <div class="dialog-head">
+      <h2 id="import-dialog-title">Import JSON Backup</h2>
+      <button type="button" class="btn" id="import-close-btn" aria-label="Close import dialog">✕</button>
+    </div>
+    <div class="dialog-body">
+      <p id="import-summary-text" style="margin:0 0 14px;"></p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+        <button type="button" class="btn" id="import-cancel-btn">Cancel</button>
+        <button type="button" class="btn btn-danger" id="import-replace-btn">Replace All</button>
+        <button type="button" class="btn btn-primary" id="import-merge-btn">Merge (Recommended)</button>
+      </div>
+    </div>
+  </dialog>
+
+  <div id="db-toast" class="toast" role="status" aria-live="polite">
+    <span id="db-toast-msg"></span>
+    <button type="button" class="btn btn-primary" id="db-undo-btn" style="display:none;padding:3px 9px;font-size:11.5px;">Undo</button>
+  </div>
+
+  <script type="module" src="database.js"></script>
 </body>
 </html>

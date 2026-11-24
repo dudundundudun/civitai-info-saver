@@ -1,125 +1,158 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>Civitai Info Saver</title>
+  <link rel="stylesheet" href="src/ui/tokens.css" />
   <style>
     body {
-      width: 340px;
-      margin: 0;
+      width: 368px;
       padding: 14px;
-      background: #141517;
-      color: #e9ecef;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      font-size: 13px;
     }
-    h2 {
-      margin: 0 0 10px 0;
-      font-size: 15px;
-      color: #74c0fc;
+    .popup-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-    }
-    .card {
-      background: #1a1b1e;
-      border: 1px solid #2c2e33;
-      border-radius: 8px;
-      padding: 10px 12px;
+      gap: 8px;
       margin-bottom: 10px;
     }
-    .grid {
+    h1 {
+      margin: 0;
+      font-size: 15px;
+      color: var(--accent-bright);
+    }
+    .grid-2 {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 6px;
       margin-top: 6px;
     }
-    label {
+    .chk-row {
       display: flex;
       align-items: center;
       gap: 6px;
       font-size: 12px;
       cursor: pointer;
     }
-    input[type="text"], select {
-      width: 100%;
-      box-sizing: border-box;
-      background: #101113;
-      border: 1px solid #373a40;
-      color: #fff;
-      padding: 6px 8px;
-      border-radius: 5px;
-      font-size: 12px;
-      margin-top: 4px;
-    }
-    .btn {
-      width: 100%;
-      padding: 9px 12px;
-      border-radius: 6px;
-      border: 1px solid #339af0;
-      background: #1971c2;
-      color: #fff;
-      font-weight: 600;
+    .chk-row input[type="checkbox"] {
+      width: 14px;
+      height: 14px;
+      accent-color: var(--accent);
       cursor: pointer;
-      margin-top: 6px;
     }
-    .btn-green {
-      background: #0ca678;
-      border-color: #20c997;
-      margin-bottom: 8px;
+    .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
     }
-    .btn:hover { opacity: 0.92; }
-    .muted { color: #909296; font-size: 11px; margin-top: 4px; }
+    .section-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #fff;
+      display: block;
+    }
+    .status-box {
+      margin: 8px 0;
+      padding: 8px 10px;
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      font-size: 11.5px;
+      display: none;
+    }
+    .status-box.visible {
+      display: block;
+    }
+    .status-box.error {
+      border-color: rgba(255, 135, 135, 0.5);
+      color: var(--danger);
+    }
+    .actions-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
-  <h2>
-    <span>⚡ Civitai Info Saver v1.6</span>
-    <span id="db-count" style="font-size:11px;color:#38d9a9;">0 saved</span>
-  </h2>
+  <header class="popup-header">
+    <h1 id="hdr-title">⚡ Civitai Info Saver v2.0</h1>
+    <span id="db-count" class="badge badge-green">0 saved</span>
+  </header>
 
-  <button class="btn btn-green" id="save-current-tab">💾 Save Current Civitai Page Now</button>
-  <div id="popup-status" class="muted" style="margin-bottom:8px;color:#63e6be;display:none;"></div>
+  <button type="button" class="btn btn-success btn-block" id="save-current-tab">
+    💾 <span id="save-btn-label">Save Current Civitai Page Now</span>
+  </button>
 
-  <div class="card">
-    <strong>Форматы сохранения</strong>
-    <div class="grid">
-      <label><input type="checkbox" id="saveHtml" /> .HTML Civitai UI</label>
-      <label><input type="checkbox" id="saveMd" /> .MD Markdown</label>
-      <label><input type="checkbox" id="saveTxt" /> .TXT Инфо</label>
-      <label><input type="checkbox" id="saveJson" /> .JSON + .info</label>
-      <label><input type="checkbox" id="saveMedia" /> Все картинки</label>
-      <label><input type="checkbox" id="includeVideos" /> + Видео (.mp4)</label>
-      <label><input type="checkbox" id="skipExistingMedia" /> Пропуск дублей</label>
-      <label><input type="checkbox" id="saveWebuiPreview" /> .preview для WebUI</label>
+  <div id="not-model-hint" class="muted" style="margin-top:6px;display:none;"></div>
+
+  <div id="popup-progress-wrap" style="margin-top:8px;display:none;">
+    <div class="progress-track"><div id="popup-progress-fill" class="progress-fill"></div></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">
+      <span id="popup-progress-text" class="muted"></span>
+      <button type="button" class="btn btn-danger" id="popup-cancel-btn" style="padding:3px 8px;font-size:11px;">Cancel</button>
     </div>
   </div>
 
-  <div class="card">
-    <strong>Папка сохранения (по умолчанию: civitred)</strong>
-    <div style="margin-top:6px;">
-      <span class="muted">Режим сохранения:</span>
-      <select id="saveMode">
-        <option value="direct_documents">Напрямую в Documents / civitred / [Название Лоры]</option>
-        <option value="downloads_subfolder">В Загрузки / civitred / [Название Лоры]</option>
-      </select>
+  <div id="popup-status" class="status-box" role="status" aria-live="polite"></div>
+
+  <section class="card" style="margin-top:10px;">
+    <span class="section-title" id="formats-heading">Export Formats</span>
+    <div class="grid-2">
+      <label class="chk-row" for="saveHtml"><input type="checkbox" id="saveHtml" /> <span data-i18n="fmtHtml">.HTML Offline UI</span></label>
+      <label class="chk-row" for="saveMd"><input type="checkbox" id="saveMd" /> <span data-i18n="fmtMd">.MD Sheet</span></label>
+      <label class="chk-row" for="saveTxt"><input type="checkbox" id="saveTxt" /> <span data-i18n="fmtTxt">.TXT Info</span></label>
+      <label class="chk-row" for="saveJson"><input type="checkbox" id="saveJson" /> <span data-i18n="fmtJson">.JSON Full</span></label>
+      <label class="chk-row" for="saveCivitaiInfo"><input type="checkbox" id="saveCivitaiInfo" /> <span data-i18n="fmtCivitaiInfo">.civitai.info</span></label>
+      <label class="chk-row" for="obsidianFrontmatter"><input type="checkbox" id="obsidianFrontmatter" /> <span data-i18n="fmtObsidianYaml">Obsidian YAML</span></label>
+      <label class="chk-row" for="saveMedia"><input type="checkbox" id="saveMedia" /> <span data-i18n="fmtMedia">All Images</span></label>
+      <label class="chk-row" for="includeVideos"><input type="checkbox" id="includeVideos" /> <span data-i18n="fmtVideos">+ Videos (.mp4)</span></label>
+      <label class="chk-row" for="skipExistingMedia"><input type="checkbox" id="skipExistingMedia" /> <span data-i18n="fmtSkipExisting">Skip Duplicates</span></label>
+      <label class="chk-row" for="saveWebuiPreview"><input type="checkbox" id="saveWebuiPreview" /> <span data-i18n="fmtWebuiPreview">.preview WebUI</span></label>
     </div>
-    <div style="margin-top:6px;">
-      <span class="muted">Имя общей папки:</span>
-      <input type="text" id="rootFolder" placeholder="civitred" />
+  </section>
+
+  <section class="card" style="margin-top:10px;">
+    <span class="section-title" id="folder-heading">Storage &amp; Folder Structure</span>
+    <div class="stack">
+      <div>
+        <label class="field-label" for="saveMode" id="lbl-saveMode">Save Mode</label>
+        <select id="saveMode">
+          <option value="direct_documents" id="opt-direct">Direct local folder (Documents / ...)</option>
+          <option value="downloads_subfolder" id="opt-downloads">Browser Downloads / civitred / ...</option>
+        </select>
+      </div>
+      <div>
+        <label class="field-label" for="rootFolder" id="lbl-rootFolder">Root Folder Name</label>
+        <input type="text" id="rootFolder" placeholder="civitred" />
+      </div>
+      <div>
+        <label class="field-label" for="folderPreset" id="lbl-folderPreset">Model Subfolder Preset</label>
+        <select id="folderPreset">
+          <option value="lora_title_only" id="opt-preset-title">Model Title</option>
+          <option value="lora_title_version" id="opt-preset-ver">Title + Version</option>
+          <option value="base_and_lora_title" id="opt-preset-base">Base Model / Title</option>
+          <option value="filename_only" id="opt-preset-file">Filename</option>
+        </select>
+      </div>
+      <div>
+        <label class="field-label" for="language" id="lbl-language">Interface Language</label>
+        <select id="language">
+          <option value="auto" id="opt-lang-auto">Auto (Browser)</option>
+          <option value="en">English</option>
+          <option value="ru">Русский</option>
+        </select>
+      </div>
     </div>
-    <div style="margin-top:8px;">
-      <span class="muted">Имя папки для каждой Лоры:</span>
-      <select id="folderPreset">
-        <option value="lora_title_only">Только название Лоры: civitred / [Название Лоры]</option>
-        <option value="lora_title_version">Название + Версия: civitred / [Название (Версия)]</option>
-        <option value="base_and_lora_title">[BaseModel] / [Название Лоры]</option>
-        <option value="filename_only">По имени файла: [Filename]</option>
-      </select>
-    </div>
+  </section>
+
+  <div class="actions-row">
+    <button type="button" class="btn" id="open-sidepanel">📌 <span data-i18n="openSidePanel">Side Panel</span></button>
+    <button type="button" class="btn btn-primary" id="open-db">🔍 <span data-i18n="openDatabase">Models DB</span></button>
   </div>
 
-  <button class="btn" id="open-db">🔍 Открыть базу сохранённых моделей</button>
-  <script src="popup.js"></script>
+  <script type="module" src="popup.js"></script>
 </body>
 </html>

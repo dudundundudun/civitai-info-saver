@@ -1,0 +1,18 @@
+{
+  "extName": {
+    "message": "Civitai Model Info & Media Saver",
+    "description": "Название расширения"
+  },
+  "extDescription": {
+    "message": "Сохраняйте метаданные, триггер-ворды, медиа-примеры и офлайн-страницу моделей Civitai локально без скачивания весов.",
+    "description": "Короткое описание расширения (<= 132 символов)"
+  },
+  "actionTitle": {
+    "message": "Civitai Info & Media Saver",
+    "description": "Подсказка иконки расширения"
+  },
+  "cmdSaveModel": {
+    "message": "Сохранить текущую модель Civitai",
+    "description": "Описание горячей клавиши"
+  }
+}

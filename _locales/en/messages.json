@@ -1,0 +1,18 @@
+{
+  "extName": {
+    "message": "Civitai Model Info & Media Saver",
+    "description": "Extension display name"
+  },
+  "extDescription": {
+    "message": "Save Civitai model metadata, trigger words, preview media, and an offline model page locally without downloading weights.",
+    "description": "Short store description (<= 132 chars)"
+  },
+  "actionTitle": {
+    "message": "Civitai Info & Media Saver",
+    "description": "Toolbar action tooltip"
+  },
+  "cmdSaveModel": {
+    "message": "Save current Civitai model info and media",
+    "description": "Keyboard shortcut description"
+  }
+}

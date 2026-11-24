@@ -1,13 +1,15 @@
 {
   "manifest_version": 3,
-  "name": "Civitai Model Info & Media Saver",
-  "version": "1.6.0",
-  "description": "Saves Civitai model info & media into Documents/civitred/[LoRA Title]/ with duplicate folder detection and an offline Civitai-replica HTML page.",
+  "name": "__MSG_extName__",
+  "version": "2.0.0",
+  "default_locale": "en",
+  "description": "__MSG_extDescription__",
   "permissions": [
     "downloads",
     "storage",
-    "activeTab",
-    "unlimitedStorage"
+    "unlimitedStorage",
+    "sidePanel",
+    "offscreen"
   ],
   "host_permissions": [
     "https://civitai.com/*",
@@ -16,19 +18,30 @@
     "https://*.civitai.red/*",
     "https://civitai.green/*",
     "https://*.civitai.green/*",
-    "https://*.cloudflarestorage.com/*",
-    "https://*.r2.cloudflarestorage.com/*"
+    "https://*.cloudflarestorage.com/*"
   ],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "type": "module"
   },
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Civitai Info & Media Saver",
+    "default_title": "__MSG_actionTitle__",
     "default_icon": {
       "16": "icons/icon16.png",
       "48": "icons/icon48.png",
       "128": "icons/icon128.png"
+    }
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "commands": {
+    "save-current-model": {
+      "suggested_key": {
+        "default": "Alt+Shift+S"
+      },
+      "description": "__MSG_cmdSaveModel__"
     }
   },
   "icons": {
@@ -46,28 +59,12 @@
         "https://civitai.green/*",
         "https://*.civitai.green/*"
       ],
-      "css": [
-        "content.css"
-      ],
       "js": [
+        "src/content/scraper.js",
+        "src/content/widget.js",
         "content.js"
       ],
       "run_at": "document_idle"
-    }
-  ],
-  "web_accessible_resources": [
-    {
-      "resources": [
-        "icons/*"
-      ],
-      "matches": [
-        "https://civitai.com/*",
-        "https://*.civitai.com/*",
-        "https://civitai.red/*",
-        "https://*.civitai.red/*",
-        "https://civitai.green/*",
-        "https://*.civitai.green/*"
-      ]
     }
   ]
 }

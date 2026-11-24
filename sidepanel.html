@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Civitai Info Saver — Side Panel</title>
+  <link rel="stylesheet" href="src/ui/tokens.css" />
+  <style>
+    body {
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .sp-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    h1 {
+      margin: 0;
+      font-size: 16px;
+      color: var(--accent-bright);
+    }
+    h2 {
+      margin: 0 0 8px;
+      font-size: 13px;
+      color: #fff;
+    }
+    .row-between {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .btn-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .db-mini-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 290px;
+      overflow-y: auto;
+      margin-top: 8px;
+    }
+    .db-mini-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .db-mini-title {
+      font-weight: 700;
+      color: #fff;
+      font-size: 12.5px;
+    }
+    .chip-btn {
+      background: var(--card);
+      border: 1px solid var(--border-strong);
+      color: var(--success-bright);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    .chip-btn:hover {
+      border-color: var(--accent);
+    }
+    details summary {
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 12.5px;
+      color: #fff;
+    }
+    .pick-only-wrap {
+      max-width: 420px;
+      margin: 12px auto;
+    }
+  </style>
+</head>
+<body>
+  <div id="pick-mode-view" class="card pick-only-wrap" style="display:none;">
+    <h1 id="pick-title" style="margin-bottom:8px;">Authorize Local Archive Folder</h1>
+    <p class="muted" id="pick-desc" style="margin:0 0 12px;"></p>
+    <div id="pick-current-path" class="badge" style="margin-bottom:12px;"></div>
+    <div class="btn-row">
+      <button type="button" class="btn btn-primary" id="pick-authorize-btn" style="display:none;">Grant Access</button>
+      <button type="button" class="btn btn-success" id="pick-select-btn">Select Folder</button>
+      <button type="button" class="btn" id="pick-cancel-btn">Cancel</button>
+    </div>
+    <div id="pick-status" class="muted" style="margin-top:10px;" role="status" aria-live="polite"></div>
+  </div>
+
+  <div id="main-sp-view" style="display:flex;flex-direction:column;gap:12px;">
+    <header class="sp-header">
+      <h1 id="sp-title">⚡ Civitai Info Saver</h1>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <span id="sp-db-badge" class="badge badge-green">0</span>
+        <button type="button" class="btn" id="sp-open-db" style="padding:4px 9px;font-size:11.5px;">DB ↗</button>
+      </div>
+    </header>
+
+    <section class="card">
+      <div class="row-between">
+        <h2 id="sp-folder-hdr" style="margin:0;">Local Archive Folder</h2>
+        <span id="sp-perm-badge" class="badge">Checking...</span>
+      </div>
+      <div id="sp-folder-path" class="muted" style="margin-top:6px;word-break:break-all;"></div>
+      <div class="btn-row">
+        <button type="button" class="btn btn-primary" id="sp-pick-folder">📁 Choose Folder</button>
+        <button type="button" class="btn btn-success" id="sp-auth-folder" style="display:none;">🔓 Grant Access</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 id="sp-active-hdr">Current Tab Model</h2>
+      <div id="sp-active-model" class="muted">Open a Civitai model page (/models/...)</div>
+      <div id="sp-active-actions" class="btn-row" style="display:none;">
+        <button type="button" class="btn btn-success" id="sp-save-btn">💾 Save Model</button>
+        <button type="button" class="btn" id="sp-copy-lora">📋 Copy &lt;lora:...&gt;</button>
+        <button type="button" class="btn btn-danger" id="sp-cancel-btn" style="display:none;">Cancel</button>
+      </div>
+      <div id="sp-progress-wrap" style="margin-top:8px;display:none;">
+        <div class="progress-track"><div id="sp-progress-fill" class="progress-fill"></div></div>
+        <div id="sp-progress-text" class="muted" style="margin-top:4px;"></div>
+      </div>
+      <div id="sp-save-status" class="muted" style="margin-top:6px;" role="status" aria-live="polite"></div>
+    </section>
+
+    <section class="card">
+      <div class="row-between" style="margin-bottom:6px;">
+        <h2 id="sp-db-hdr" style="margin:0;">Quick Model Search</h2>
+      </div>
+      <label class="field-label" for="sp-db-search" style="position:absolute;left:-9999px;">Search saved models</label>
+      <input type="search" id="sp-db-search" placeholder="Filter by title, trigger words, base model..." />
+      <div id="sp-db-list" class="db-mini-list"></div>
+    </section>
+
+    <details class="card">
+      <summary id="sp-settings-summary">Settings</summary>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px;">
+        <label style="display:flex;gap:6px;align-items:center;font-size:12px;"><input type="checkbox" id="sp-saveHtml" /> .HTML</label>
+        <label style="display:flex;gap:6px;align-items:center;font-size:12px;"><input type="checkbox" id="sp-saveMd" /> .MD</label>
+        <label style="display:flex;gap:6px;align-items:center;font-size:12px;"><input type="checkbox" id="sp-saveTxt" /> .TXT</label>
+        <label style="display:flex;gap:6px;align-items:center;font-size:12px;"><input type="checkbox" id="sp-saveJson" /> .JSON</label>
+        <label style="display:flex;gap:6px;align-items:center;font-size:12px;"><input type="checkbox" id="sp-saveCivitaiInfo" /> .civitai.info</label>
+        <label style="display:flex;gap:6px;align-items:center;font-size:12px;"><input type="checkbox" id="sp-obsidianFrontmatter" /> Obsidian YAML</label>
+        <label style="display:flex;gap:6px;align-items:center;font-size:12px;"><input type="checkbox" id="sp-saveMedia" /> Images</label>
+        <label style="display:flex;gap:6px;align-items:center;font-size:12px;"><input type="checkbox" id="sp-includeVideos" /> Videos</label>
+        <label style="display:flex;gap:6px;align-items:center;font-size:12px;"><input type="checkbox" id="sp-skipExistingMedia" /> Skip dupes</label>
+        <label style="display:flex;gap:6px;align-items:center;font-size:12px;"><input type="checkbox" id="sp-saveWebuiPreview" /> .preview</label>
+      </div>
+      <div style="margin-top:8px;">
+        <label class="field-label" for="sp-saveMode">Save Mode</label>
+        <select id="sp-saveMode">
+          <option value="direct_documents">Direct local folder</option>
+          <option value="downloads_subfolder">Downloads subfolder</option>
+        </select>
+      </div>
+      <div style="margin-top:8px;">
+        <label class="field-label" for="sp-rootFolder">Root Folder</label>
+        <input type="text" id="sp-rootFolder" />
+      </div>
+      <div style="margin-top:8px;">
+        <label class="field-label" for="sp-folderPreset">Folder Preset</label>
+        <select id="sp-folderPreset">
+          <option value="lora_title_only">Title</option>
+          <option value="lora_title_version">Title (Version)</option>
+          <option value="base_and_lora_title">BaseModel / Title</option>
+          <option value="filename_only">Filename</option>
+        </select>
+      </div>
+    </details>
+  </div>
+
+  <div id="sp-toast" class="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="sidepanel.js"></script>
+</body>
+</html>
